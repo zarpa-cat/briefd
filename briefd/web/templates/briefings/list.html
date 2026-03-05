@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}My Briefings — Briefd{% endblock %}
+{% block content %}
+<h1>Your Briefings</h1>
+
+{% if briefings %}
+  {% for b in briefings %}
+  <div class="briefing-item">
+    <h2><a href="/briefings/{{ b.date }}?user_id={{ user_id }}">{{ b.date }}</a></h2>
+    <div class="meta">
+      {% for topic in b.topics %}<span class="tag">{{ topic }}</span>{% endfor %}
+      · {{ b.status.value }}
+    </div>
+  </div>
+  {% endfor %}
+{% else %}
+  <p style="color: #6b7280;">No briefings yet.</p>
+  <p>Run <code>briefd run --topics python,rust,llm</code> to generate your first one.</p>
+{% endif %}
+{% endblock %}

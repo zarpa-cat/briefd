@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}{{ briefing.date }} — Briefd{% endblock %}
+{% block content %}
+<div style="margin-bottom: 1rem;">
+  <a href="/briefings" style="color: #6b7280; font-size: 0.875rem;">← All briefings</a>
+</div>
+<h1>{{ briefing.date }}</h1>
+<div class="meta" style="margin-bottom: 1.5rem; color: #6b7280; font-size: 0.875rem;">
+  {% for topic in briefing.topics %}<span class="tag">{{ topic }}</span>{% endfor %}
+</div>
+<div class="prose">
+  {{ briefing.digest_markdown }}
+</div>
+{% endblock %}

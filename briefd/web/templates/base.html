@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Briefd{% endblock %}</title>
+  <script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+" crossorigin="anonymous"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+           max-width: 720px; margin: 0 auto; padding: 1.5rem; color: #1a1a1a; }
+    a { color: #2563eb; }
+    nav { display: flex; gap: 1.5rem; margin-bottom: 2rem; padding-bottom: 1rem;
+          border-bottom: 1px solid #e5e7eb; }
+    nav a { text-decoration: none; font-weight: 500; }
+    .briefing-item { padding: 1rem 0; border-bottom: 1px solid #e5e7eb; }
+    .briefing-item h2 { margin: 0 0 0.25rem; font-size: 1.1rem; }
+    .briefing-item .meta { color: #6b7280; font-size: 0.875rem; }
+    .prose { line-height: 1.7; }
+    .prose h1, .prose h2, .prose h3 { margin-top: 1.5rem; }
+    .tag { display: inline-block; padding: 0.125rem 0.5rem; background: #f3f4f6;
+           border-radius: 9999px; font-size: 0.75rem; color: #374151; margin-right: 0.25rem; }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="/">Briefd 🐾</a>
+    <a href="/briefings">My Briefings</a>
+  </nav>
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>
