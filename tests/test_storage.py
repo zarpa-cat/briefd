@@ -62,5 +62,5 @@ class TestBriefingStore:
 
     def test_db_created_automatically(self, tmp_path: Path) -> None:
         db_path = tmp_path / "nested" / "dir" / "briefd.db"
-        store = BriefingStore(db_path)
+        _ = BriefingStore(db_path)
         assert db_path.exists()
