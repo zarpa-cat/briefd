@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Briefd — Daily AI technical digest</title>
+  <meta name="description" content="Your daily technical briefing, written by an AI agent. HN, GitHub Trending, RSS — filtered to what matters to you.">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+           color: #1a1a1a; background: #fff; }
+
+    /* Hero */
+    .hero { max-width: 680px; margin: 0 auto; padding: 5rem 1.5rem 3rem; }
+    .hero-label { font-size: 0.8rem; font-weight: 600; letter-spacing: 0.08em;
+                  text-transform: uppercase; color: #6b7280; margin-bottom: 1.25rem; }
+    .hero h1 { font-size: clamp(2rem, 5vw, 3rem); font-weight: 700;
+               line-height: 1.15; letter-spacing: -0.02em; margin-bottom: 1.25rem; }
+    .hero h1 em { font-style: normal; color: #2563eb; }
+    .hero p { font-size: 1.125rem; color: #4b5563; line-height: 1.65; margin-bottom: 2rem; }
+
+    /* Email form */
+    .signup-form { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .signup-form input[type=email] {
+      flex: 1; min-width: 220px; padding: 0.6rem 1rem;
+      border: 1.5px solid #d1d5db; border-radius: 8px;
+      font-size: 1rem; outline: none;
+    }
+    .signup-form input[type=email]:focus { border-color: #2563eb; }
+    .signup-form button {
+      padding: 0.6rem 1.5rem; background: #2563eb; color: #fff;
+      border: none; border-radius: 8px; font-size: 1rem;
+      font-weight: 500; cursor: pointer; white-space: nowrap;
+    }
+    .signup-form button:hover { background: #1d4ed8; }
+    .form-note { margin-top: 0.5rem; font-size: 0.8rem; color: #9ca3af; }
+
+    /* How it works */
+    .how { max-width: 680px; margin: 0 auto; padding: 3rem 1.5rem; }
+    .how h2 { font-size: 1.35rem; font-weight: 600; margin-bottom: 1.5rem; }
+    .steps { display: grid; gap: 1.25rem; }
+    .step { display: flex; gap: 1rem; align-items: flex-start; }
+    .step-num { flex-shrink: 0; width: 2rem; height: 2rem; background: #eff6ff;
+                color: #2563eb; border-radius: 50%; display: flex;
+                align-items: center; justify-content: center;
+                font-weight: 700; font-size: 0.875rem; }
+    .step-body h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.2rem; }
+    .step-body p { color: #6b7280; font-size: 0.9rem; line-height: 1.5; }
+
+    /* Pricing */
+    .pricing { max-width: 680px; margin: 0 auto; padding: 3rem 1.5rem;
+               border-top: 1px solid #f3f4f6; }
+    .pricing h2 { font-size: 1.35rem; font-weight: 600; margin-bottom: 1.5rem; }
+    .plans { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 480px) { .plans { grid-template-columns: 1fr; } }
+    .plan { border: 1.5px solid #e5e7eb; border-radius: 12px; padding: 1.25rem; }
+    .plan.featured { border-color: #2563eb; background: #eff6ff; }
+    .plan-name { font-weight: 600; font-size: 0.875rem; text-transform: uppercase;
+                 letter-spacing: 0.05em; color: #6b7280; margin-bottom: 0.5rem; }
+    .plan-price { font-size: 1.75rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .plan-price span { font-size: 1rem; font-weight: 400; color: #6b7280; }
+    .plan-desc { font-size: 0.875rem; color: #6b7280; line-height: 1.5; }
+
+    /* Footer */
+    footer { max-width: 680px; margin: 0 auto; padding: 2rem 1.5rem;
+             border-top: 1px solid #f3f4f6;
+             font-size: 0.8rem; color: #9ca3af; }
+    footer a { color: #6b7280; }
+  </style>
+</head>
+<body>
+
+<div class="hero">
+  <p class="hero-label">Briefd 🐾</p>
+  <h1>Your daily technical<br>briefing, <em>written by an agent.</em></h1>
+  <p>Every morning, Briefd scans Hacker News, GitHub Trending, and your RSS feeds,
+     finds what matters to you, and writes a clean digest. No noise.
+     One credit per briefing.</p>
+
+  <form class="signup-form" method="post" action="/auth/request">
+    <input type="email" name="email" placeholder="your@email.com" required>
+    <button type="submit">Get started →</button>
+  </form>
+  <p class="form-note">Free trial · No credit card required · Cancel anytime</p>
+</div>
+
+<div class="how">
+  <h2>How it works</h2>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <h3>Choose your topics</h3>
+        <p>Pick what you care about: Python, Rust, LLMs, security, DevOps — anything.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <h3>The agent fetches and filters</h3>
+        <p>Every morning, Briefd pulls from HN top stories, GitHub Trending, and your RSS feeds.
+           Stories that don't match your topics are discarded.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <h3>A digest lands in your inbox</h3>
+        <p>Claude writes a short briefing: what happened, why it matters, what to read.
+           Scannable in 2 minutes.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <h3>One credit per briefing</h3>
+        <p>Your subscription includes a monthly credit allocation. Power weeks?
+           Buy more credits. Not using it? Credits carry over.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="pricing">
+  <h2>Pricing</h2>
+  <div class="plans">
+    <div class="plan">
+      <div class="plan-name">Monthly</div>
+      <div class="plan-price">$5<span>/month</span></div>
+      <div class="plan-desc">30 credits/month — one briefing a day.<br>
+        Top up when you need more.</div>
+    </div>
+    <div class="plan featured">
+      <div class="plan-name">Annual</div>
+      <div class="plan-price">$48<span>/year</span></div>
+      <div class="plan-desc">400 credits/year — save 20%.<br>
+        Credits accumulate, never expire.</div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  Built by <a href="https://zarpa-cat.github.io">Zarpa</a> 🐾 ·
+  <a href="https://github.com/zarpa-cat/briefd">Open source</a> ·
+  Powered by <a href="https://revenuecat.com">RevenueCat</a>
+</footer>
+
+</body>
+</html>

@@ -50,7 +50,7 @@ def get_current_user(request: Request) -> str:
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request) -> HTMLResponse:
     """Landing page."""
-    return templates.TemplateResponse(request, "index.html", {"request": request})
+    return templates.TemplateResponse(request, "landing.html", {"request": request})
 
 
 @app.get("/briefings", response_class=HTMLResponse)
