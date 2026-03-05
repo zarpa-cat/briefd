@@ -110,7 +110,7 @@ def schedule(db: str, hour: int | None, date: str | None, users: tuple[str, ...]
         try:
             delivery_hour = int(hour_str)
         except ValueError:
-            raise click.UsageError(f"Invalid hour '{hour_str}' in spec '{spec}'")
+            raise click.UsageError(f"Invalid hour'{hour_str}' in spec '{spec}'") from None  # noqa: B904 '{hour_str}' in spec '{spec}'")
         cfg = UserConfig(
             user_id=uid,
             topics=[t.strip() for t in topics_str.split(",") if t.strip()],
