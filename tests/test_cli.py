@@ -19,8 +19,10 @@ def _ready_briefing(user_id: str = "local") -> Briefing:
 def _stories() -> list[Story]:
     return [
         Story(
-            title="Python 3.14 ships", url="https://python.org",
-            source=SourceType.HN_TOP, score=300,
+            title="Python 3.14 ships",
+            url="https://python.org",
+            source=SourceType.HN_TOP,
+            score=300,
         ),
     ]
 

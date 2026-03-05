@@ -102,7 +102,7 @@ def _parse_github_trending(html: str, limit: int) -> list[Story]:
     stories: list[Story] = []
 
     # Extract each Box-row article block
-    articles = re.findall(r'<article[^>]*Box-row[^>]*>(.*?)</article>', html, re.DOTALL)
+    articles = re.findall(r"<article[^>]*Box-row[^>]*>(.*?)</article>", html, re.DOTALL)
 
     for article in articles:
         if len(stories) >= limit:
@@ -126,9 +126,7 @@ def _parse_github_trending(html: str, limit: int) -> list[Story]:
         full_url = f"https://github.com{repo_path}"
 
         # Description: first <p> with meaningful text content
-        desc_match = re.search(
-            r'<p[^>]*>\s*((?:(?!<).){10,300})\s*</p>', article, re.DOTALL
-        )
+        desc_match = re.search(r"<p[^>]*>\s*((?:(?!<).){10,300})\s*</p>", article, re.DOTALL)
         description = None
         if desc_match:
             raw = re.sub(r"<[^>]+>", "", desc_match.group(1)).strip()

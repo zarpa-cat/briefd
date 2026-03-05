@@ -62,9 +62,7 @@ async def _run_async(cfg: UserConfig, date: str, no_github: bool) -> None:
     console.print()
     console.print(Markdown(briefing.digest_markdown))
     console.print()
-    console.print(
-        f"[dim]Briefd · {date} · {briefing.story_count()} stories · {cfg.topics}[/dim]"
-    )
+    console.print(f"[dim]Briefd · {date} · {briefing.story_count()} stories · {cfg.topics}[/dim]")
 
 
 def main() -> None:
