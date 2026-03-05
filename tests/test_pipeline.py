@@ -45,7 +45,9 @@ class TestGenerateBriefing:
     async def test_returns_ready_briefing_on_success(self) -> None:
         cfg = UserConfig(user_id="u1", topics=["python"])
         stories = [
-            Story(title="Python tip", url="https://python.org", source=SourceType.HN_TOP, score=200),
+            Story(
+                title="Python tip", url="https://python.org", source=SourceType.HN_TOP, score=200
+            ),
         ]
 
         with patch("briefd.pipeline.call_llm", new_callable=AsyncMock) as mock_llm:
