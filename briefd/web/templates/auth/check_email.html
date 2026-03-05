@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block title %}Check your email — Briefd{% endblock %}
+{% block content %}
+<h1>Check your email</h1>
+<p>We've sent a magic link to <strong>{{ email }}</strong>.</p>
+<p style="color: #6b7280;">Click the link in the email to sign in. The link works once.</p>
+<p style="margin-top: 2rem;"><a href="/auth/login">← Send another link</a></p>
+{% endblock %}

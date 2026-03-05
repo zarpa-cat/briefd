@@ -5,11 +5,19 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse
+from fastapi import FastAPI, Form, Request, Response
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
+from briefd.auth import (
+    AuthStore,
+    TokenStatus,
+    email_to_user_id,
+    generate_token,
+    send_magic_link,
+    verify_token,
+)
 from briefd.storage import BriefingStore
 
 TEMPLATES_DIR = Path(__file__).parent / "templates"
@@ -23,8 +31,20 @@ if STATIC_DIR.exists():
     app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 
+AUTH_DB_PATH = Path(os.environ.get("BRIEFD_AUTH_DB", "briefd-auth.db"))
+
+
 def get_store() -> BriefingStore:
     return BriefingStore(DB_PATH)
+
+
+def get_auth_store() -> AuthStore:
+    return AuthStore(AUTH_DB_PATH)
+
+
+def get_current_user(request: Request) -> str:
+    """Extract user_id from session cookie. Returns 'local' as fallback."""
+    return request.cookies.get("briefd_user", "local")
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -98,6 +118,62 @@ async def revenuecat_webhook(request: Request) -> dict:
     event = parse_webhook(payload)
     actions = await handle_webhook(event)
     return {"received": True, "event_type": event.event_type.value, "actions": actions}
+
+
+@app.get("/auth/login", response_class=HTMLResponse)
+async def login_page(request: Request) -> HTMLResponse:
+    """Magic link request page."""
+    return templates.TemplateResponse(request, "auth/login.html", {"request": request})
+
+
+@app.post("/auth/request")
+async def request_magic_link(request: Request, email: str = Form(...)) -> HTMLResponse:
+    """Generate a magic link token and email it."""
+    token = generate_token()
+    auth_store = get_auth_store()
+    auth_store.save_token(token, email=email)
+
+    base_url = str(request.base_url).rstrip("/")
+    await send_magic_link(email=email, token=token, base_url=base_url)
+
+    return templates.TemplateResponse(
+        request,
+        "auth/check_email.html",
+        {"request": request, "email": email},
+    )
+
+
+@app.get("/auth/verify", response_class=HTMLResponse)
+async def verify_magic_link(request: Request, token: str) -> Response:
+    """Verify a magic link token and set session cookie."""
+    auth_store = get_auth_store()
+    status, email = verify_token(auth_store, token)
+
+    if status == TokenStatus.VALID:
+        user_id = email_to_user_id(email)
+        response = RedirectResponse(url="/briefings", status_code=303)
+        response.set_cookie("briefd_user", user_id, httponly=True, max_age=60 * 60 * 24 * 30)
+        return response
+
+    error = (
+        "This link has already been used."
+        if status == TokenStatus.ALREADY_USED
+        else "Invalid or expired link."
+    )
+    return templates.TemplateResponse(
+        request,
+        "auth/login.html",
+        {"request": request, "error": error},
+        status_code=400,
+    )
+
+
+@app.post("/auth/logout")
+async def logout() -> Response:
+    """Clear session cookie."""
+    response = RedirectResponse(url="/", status_code=303)
+    response.delete_cookie("briefd_user")
+    return response
 
 
 @app.get("/health")

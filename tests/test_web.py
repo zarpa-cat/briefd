@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 from fastapi.testclient import TestClient
 
@@ -77,3 +77,40 @@ class TestRoutes:
         assert resp.status_code == 200
         assert resp.json()["received"] is True
         assert resp.json()["event_type"] == "RENEWAL"
+
+    def test_login_page_returns_200(self) -> None:
+        resp = self.client.get("/auth/login")
+        assert resp.status_code == 200
+        assert "magic link" in resp.text.lower()
+
+    def test_request_magic_link_redirects_to_check_email(self) -> None:
+        with patch("briefd.web.app.send_magic_link", new_callable=AsyncMock):
+            resp = self.client.post(
+                "/auth/request",
+                data={"email": "test@example.com"},
+                follow_redirects=False,
+            )
+        assert resp.status_code == 200
+        assert "Check your email" in resp.text
+
+    def test_verify_valid_token_sets_cookie(self) -> None:
+        import os
+        import tempfile
+
+        from briefd.auth import AuthStore, generate_token
+
+        with tempfile.TemporaryDirectory() as td:
+            db = os.path.join(td, "auth.db")
+            store = AuthStore(db)
+            token = generate_token()
+            store.save_token(token, email="user@example.com")
+
+            with patch("briefd.web.app.get_auth_store", return_value=store):
+                resp = self.client.get(f"/auth/verify?token={token}", follow_redirects=False)
+
+        assert resp.status_code == 303
+        assert "briefd_user" in resp.cookies
+
+    def test_verify_invalid_token_returns_400(self) -> None:
+        resp = self.client.get("/auth/verify?token=badtoken")
+        assert resp.status_code == 400
