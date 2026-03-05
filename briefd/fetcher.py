@@ -93,39 +93,54 @@ async def fetch_github_trending(
 
 
 def _parse_github_trending(html: str, limit: int) -> list[Story]:
-    """Extract repo stories from GitHub Trending HTML."""
+    """Extract repo stories from GitHub Trending HTML.
+
+    GitHub's trending page renders articles with class="Box-row". Each article
+    contains several links; the repo link is identifiable as /owner/repo (two
+    path segments, no query string, not a special route like /sponsors).
+    """
     stories: list[Story] = []
 
-    # Match each trending repo block
-    # Pattern: <h2 ...><a href="/owner/repo">owner / repo</a></h2>
-    repo_pattern = re.compile(
-        r'<article[^>]*class="[^"]*Box-row[^"]*"[^>]*>.*?'
-        r'<h2[^>]*>\s*<a\s+href="(/[^"]+)"[^>]*>(.*?)</a>',
-        re.DOTALL,
-    )
-    desc_pattern = re.compile(r'<p[^>]*class="[^"]*col-9[^"]*"[^>]*>\s*(.*?)\s*</p>', re.DOTALL)
+    # Extract each Box-row article block
+    articles = re.findall(r'<article[^>]*Box-row[^>]*>(.*?)</article>', html, re.DOTALL)
 
-    for match in repo_pattern.finditer(html):
+    for article in articles:
         if len(stories) >= limit:
             break
-        path = match.group(1).strip()
-        raw_name = match.group(2).strip()
-        # Clean up "owner / repo" → "owner/repo"
-        name = re.sub(r"\s*/\s*", "/", raw_name).strip()
-        full_url = f"https://github.com{path}"
 
-        # Try to find a description nearby (best effort)
-        desc_match = desc_pattern.search(html[match.start() : match.start() + 2000])
-        description = ""
+        # Find all hrefs in this article
+        hrefs = re.findall(r'href="(/[^"?#]+)"', article)
+        # The repo link: exactly two path segments, not a known non-repo path
+        repo_path = None
+        for href in hrefs:
+            parts = href.strip("/").split("/")
+            if len(parts) == 2 and not parts[0] in ("sponsors", "login", "trending"):
+                repo_path = href
+                break
+
+        if not repo_path:
+            continue
+
+        # Repo name from path
+        name = repo_path.strip("/").replace("/", " / ")
+        full_url = f"https://github.com{repo_path}"
+
+        # Description: first <p> with meaningful text content
+        desc_match = re.search(
+            r'<p[^>]*>\s*((?:(?!<).){10,300})\s*</p>', article, re.DOTALL
+        )
+        description = None
         if desc_match:
-            description = re.sub(r"<[^>]+>", "", desc_match.group(1)).strip()
+            raw = re.sub(r"<[^>]+>", "", desc_match.group(1)).strip()
+            if len(raw) > 10:
+                description = raw
 
         stories.append(
             Story(
                 title=name,
                 url=full_url,
                 source=SourceType.GITHUB_TRENDING,
-                summary=description or None,
+                summary=description,
             )
         )
 
