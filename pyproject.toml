@@ -1,0 +1,37 @@
+[project]
+name = "briefd"
+version = "0.1.0"
+description = "Daily AI-powered technical digest — agent-operated SaaS"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "httpx>=0.28",
+    "python-dotenv>=1.0",
+    "rich>=14.0",
+]
+
+[project.scripts]
+briefd = "briefd.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "ruff>=0.9",
+    "pytest>=8.0",
+    "pytest-asyncio>=0.25",
+    "respx>=0.22",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
