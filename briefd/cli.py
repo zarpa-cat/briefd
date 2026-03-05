@@ -143,6 +143,36 @@ def schedule(db: str, hour: int | None, date: str | None, users: tuple[str, ...]
     asyncio.run(_run())
 
 
+@cli.command()
+@click.option("--db", default="briefd.db", show_default=True, help="Path to SQLite DB")
+@click.option(
+    "--user",
+    "user_ids",
+    multiple=True,
+    default=["local"],
+    show_default=True,
+    help="User IDs to include in health check",
+)
+@click.option("--out", default=None, help="Write report to file (default: stdout)")
+def health(db: str, user_ids: tuple[str, ...], out: str | None) -> None:
+    """Generate a health report for all users."""
+    from briefd.health import generate_health_report
+    from briefd.storage import BriefingStore
+
+    store = BriefingStore(Path(db))
+    report = generate_health_report(store=store, user_ids=list(user_ids))
+    md = report.to_markdown()
+
+    if out:
+        Path(out).write_text(md)
+        console.print(f"[dim]Report written to {out}[/dim]")
+    else:
+        console.print(Markdown(md))
+
+    if report.success_rate < 0.8 and report.total_generated > 0:
+        raise SystemExit(1)  # non-zero exit for CI / monitoring
+
+
 def main() -> None:
     cli()
 
