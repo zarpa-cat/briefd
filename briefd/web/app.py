@@ -59,6 +59,47 @@ async def briefing_detail(request: Request, date: str, user_id: str = "local") -
     )
 
 
+@app.get("/account", response_class=HTMLResponse)
+async def account(request: Request, user_id: str = "local") -> HTMLResponse:
+    """Account page — subscription status and credit balance."""
+    from briefd.billing import BillingClient
+
+    rc_key = os.environ.get("RC_API_KEY", "")
+    rc_project = os.environ.get("RC_PROJECT_ID", "")
+
+    customer_status = None
+    billing_error = None
+
+    if rc_key and rc_project:
+        try:
+            client = BillingClient(api_key=rc_key, project_id=rc_project)
+            customer_status = await client.get_customer_status(user_id)
+        except Exception as e:
+            billing_error = str(e)
+
+    return templates.TemplateResponse(
+        request,
+        "account.html",
+        {
+            "request": request,
+            "user_id": user_id,
+            "customer_status": customer_status,
+            "billing_error": billing_error,
+        },
+    )
+
+
+@app.post("/webhook/revenuecat")
+async def revenuecat_webhook(request: Request) -> dict:
+    """Receive RevenueCat webhook events."""
+    from briefd.webhook import handle_webhook, parse_webhook
+
+    payload = await request.json()
+    event = parse_webhook(payload)
+    actions = await handle_webhook(event)
+    return {"received": True, "event_type": event.event_type.value, "actions": actions}
+
+
 @app.get("/health")
 async def health() -> dict:
     """Health check endpoint."""

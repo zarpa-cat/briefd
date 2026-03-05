@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Account — Briefd{% endblock %}
+{% block content %}
+<h1>Account</h1>
+
+{% if billing_error %}
+  <p style="color: #dc2626;">Could not load billing status: {{ billing_error }}</p>
+{% elif customer_status %}
+  <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem;">
+    <h2 style="margin: 0 0 0.75rem; font-size: 1rem; color: #374151;">Subscription</h2>
+    {% if customer_status.has_premium %}
+      <p style="margin: 0; color: #059669; font-weight: 500;">✓ Premium active</p>
+    {% else %}
+      <p style="margin: 0; color: #6b7280;">No active subscription</p>
+    {% endif %}
+  </div>
+
+  <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 1.25rem;">
+    <h2 style="margin: 0 0 0.75rem; font-size: 1rem; color: #374151;">Credits (CRED)</h2>
+    <p style="margin: 0; font-size: 1.5rem; font-weight: 600;">{{ customer_status.credit_balance }}</p>
+    <p style="margin: 0.25rem 0 0; color: #6b7280; font-size: 0.875rem;">1 credit = 1 briefing</p>
+  </div>
+
+  {% if not customer_status.has_premium and customer_status.credit_balance == 0 %}
+  <div style="margin-top: 1.5rem; padding: 1rem; background: #fef3c7; border-radius: 8px;">
+    <p style="margin: 0;">You're out of credits. <a href="#">Upgrade to Premium</a> or purchase more credits.</p>
+  </div>
+  {% endif %}
+{% else %}
+  <p style="color: #6b7280;">Set <code>RC_API_KEY</code> and <code>RC_PROJECT_ID</code> to view billing status.</p>
+{% endif %}
+
+<div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #e5e7eb;">
+  <p style="color: #6b7280; font-size: 0.875rem;">User ID: <code>{{ user_id }}</code></p>
+</div>
+{% endblock %}

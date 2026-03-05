@@ -64,3 +64,16 @@ class TestRoutes:
         with patch("briefd.web.app.get_store", return_value=mock_store):
             resp = self.client.get("/briefings/2099-01-01?user_id=u1")
         assert resp.status_code == 404
+
+    def test_account_without_rc_config(self) -> None:
+        with patch.dict("os.environ", {"RC_API_KEY": "", "RC_PROJECT_ID": ""}):
+            resp = self.client.get("/account?user_id=u1")
+        assert resp.status_code == 200
+        assert "RC_API_KEY" in resp.text
+
+    def test_webhook_endpoint_accepts_post(self) -> None:
+        payload = {"event": {"type": "RENEWAL", "app_user_id": "u1", "product_id": "premium"}}
+        resp = self.client.post("/webhook/revenuecat", json=payload)
+        assert resp.status_code == 200
+        assert resp.json()["received"] is True
+        assert resp.json()["event_type"] == "RENEWAL"
