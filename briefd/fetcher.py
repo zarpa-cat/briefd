@@ -13,6 +13,63 @@ HN_BASE = "https://hacker-news.firebaseio.com/v0"
 GITHUB_TRENDING_URL = "https://github.com/trending"
 
 
+async def fetch_rss(url: str, limit: int = 20) -> list[Story]:
+    """Fetch stories from an RSS feed URL.
+
+    Parses RSS 2.0 XML. Items without a <link> are skipped.
+    Returns empty list on HTTP error (graceful degradation).
+    """
+    import xml.etree.ElementTree as ET
+
+    try:
+        async with httpx.AsyncClient(
+            timeout=15,
+            headers={"User-Agent": "briefd/0.1 (+https://zarpa-cat.github.io)"},
+        ) as client:
+            resp = await client.get(url)
+            resp.raise_for_status()
+            xml_text = resp.text
+    except (httpx.HTTPError, httpx.RequestError):
+        return []
+
+    try:
+        root = ET.fromstring(xml_text)
+    except ET.ParseError:
+        return []
+
+    stories: list[Story] = []
+    # RSS 2.0: items are under channel/item
+    for item in root.iter("item"):
+        if len(stories) >= limit:
+            break
+        title_el = item.find("title")
+        link_el = item.find("link")
+        desc_el = item.find("description")
+
+        title = title_el.text.strip() if title_el is not None and title_el.text else ""
+        link = link_el.text.strip() if link_el is not None and link_el.text else ""
+
+        if not link:
+            continue
+
+        summary = None
+        if desc_el is not None and desc_el.text:
+            # Strip HTML tags from description
+            raw = re.sub(r"<[^>]+>", "", desc_el.text).strip()
+            summary = raw[:300] if raw else None
+
+        stories.append(
+            Story(
+                title=title,
+                url=link,
+                source=SourceType.RSS,
+                summary=summary,
+            )
+        )
+
+    return stories
+
+
 async def fetch_hn_top(limit: int = 20) -> list[Story]:
     """Fetch top stories from Hacker News.
 
