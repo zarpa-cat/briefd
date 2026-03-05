@@ -80,6 +80,69 @@ async def _run_async(
         console.print(f"[dim]Saved to {db_path}[/dim]")
 
 
+@cli.command()
+@click.option("--db", default="briefd.db", show_default=True, help="Path to SQLite DB")
+@click.option("--hour", default=None, type=int, help="Override current UTC hour (for testing)")
+@click.option("--date", default=None, help="Override date (YYYY-MM-DD, for testing)")
+@click.option(
+    "--user",
+    "users",
+    multiple=True,
+    help="user_id:topics:hour triples, e.g. alice@x.com:python,rust:7",
+)
+def schedule(db: str, hour: int | None, date: str | None, users: tuple[str, ...]) -> None:
+    """Run the scheduler — generate briefings for all due users.
+
+    Example:
+        briefd schedule --user alice@x.com:python,rust:7 --user bob@x.com:llm:8
+    """
+    import asyncio
+
+    from briefd.models import UserConfig
+    from briefd.scheduler import UserJob, run_scheduler
+
+    jobs: list[UserJob] = []
+    for spec in users:
+        parts = spec.split(":")
+        if len(parts) != 3:
+            raise click.UsageError(f"Invalid user spec '{spec}' — expected user_id:topics:hour")
+        uid, topics_str, hour_str = parts
+        try:
+            delivery_hour = int(hour_str)
+        except ValueError:
+            raise click.UsageError(f"Invalid hour '{hour_str}' in spec '{spec}'")
+        cfg = UserConfig(
+            user_id=uid,
+            topics=[t.strip() for t in topics_str.split(",") if t.strip()],
+            delivery_hour_utc=delivery_hour,
+        )
+        jobs.append(UserJob(cfg=cfg))
+
+    if not jobs:
+        console.print("[yellow]No users configured — nothing to do.[/yellow]")
+        return
+
+    async def _run() -> None:
+        result = await run_scheduler(
+            jobs=jobs,
+            db_path=Path(db),
+            current_hour_utc=hour,
+            date=date,
+        )
+        console.print(
+            f"\n[bold]Scheduler run complete:[/bold] "
+            f"attempted={result.attempted} "
+            f"succeeded=[green]{result.succeeded}[/green] "
+            f"failed=[red]{result.failed}[/red] "
+            f"skipped={result.skipped}"
+        )
+        if result.errors:
+            for err in result.errors:
+                console.print(f"  [red]✗ {err}[/red]")
+
+    asyncio.run(_run())
+
+
 def main() -> None:
     cli()
 
