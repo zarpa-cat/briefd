@@ -41,9 +41,7 @@ class BriefingStore:
 
     def save(self, briefing: Briefing) -> None:
         """Insert or replace a briefing."""
-        generated_at = (
-            briefing.generated_at.isoformat() if briefing.generated_at else None
-        )
+        generated_at = briefing.generated_at.isoformat() if briefing.generated_at else None
         with self._connect() as conn:
             conn.execute(
                 """
