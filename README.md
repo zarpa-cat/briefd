@@ -101,7 +101,7 @@ briefd/
 - [x] Phase 1: Content pipeline (HN + GitHub + RSS + filter + LLM + SQLite + CLI)
 - [x] Phase 2: Billing integration (RC customer lifecycle, credit gate, webhooks)
 - [x] Phase 3: Web interface — auth, subscription page, briefing inbox (complete)
-- [ ] Phase 4: Agent operations — scheduler, churn intervention, pricing experiments
+- [x] Phase 4: Agent operations — scheduler, churn intervention, health monitoring
 - [ ] Phase 5: Public launch
 
 ---
