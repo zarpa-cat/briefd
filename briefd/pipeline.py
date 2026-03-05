@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import httpx
 
+from briefd.billing import CustomerStatus
 from briefd.models import Briefing, BriefingStatus, Story, UserConfig
 
 
@@ -70,6 +71,30 @@ async def call_llm(prompt: str) -> str:
         resp.raise_for_status()
         data = resp.json()
         return data["content"][0]["text"]  # type: ignore[index]
+
+
+async def generate_briefing_gated(
+    cfg: UserConfig,
+    stories: list[Story],
+    date: str,
+    customer_status: CustomerStatus,
+) -> Briefing:
+    """Generate a briefing only if the customer has access (premium or credits).
+
+    Returns a FAILED briefing immediately if access is denied — no LLM call made.
+    """
+    briefing = Briefing(
+        user_id=cfg.user_id,
+        date=date,
+        topics=cfg.topics,
+        stories=stories,
+    )
+
+    if not customer_status.can_afford_briefing:
+        briefing.status = BriefingStatus.FAILED
+        return briefing
+
+    return await generate_briefing(cfg, stories, date)
 
 
 async def generate_briefing(
