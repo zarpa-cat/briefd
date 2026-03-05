@@ -114,7 +114,7 @@ def _parse_github_trending(html: str, limit: int) -> list[Story]:
         repo_path = None
         for href in hrefs:
             parts = href.strip("/").split("/")
-            if len(parts) == 2 and not parts[0] in ("sponsors", "login", "trending"):
+            if len(parts) == 2 and parts[0] not in ("sponsors", "login", "trending"):
                 repo_path = href
                 break
 
