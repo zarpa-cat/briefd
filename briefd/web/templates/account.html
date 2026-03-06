@@ -30,7 +30,15 @@
   <p style="color: #6b7280;">Set <code>RC_API_KEY</code> and <code>RC_PROJECT_ID</code> to view billing status.</p>
 {% endif %}
 
-<div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #e5e7eb;">
-  <p style="color: #6b7280; font-size: 0.875rem;">User ID: <code>{{ user_id }}</code></p>
+<div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #e5e7eb;
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+  <p style="color: #6b7280; font-size: 0.875rem; margin: 0;">User ID: <code>{{ user_id }}</code></p>
+  <div style="display: flex; gap: 1rem; font-size: 0.875rem;">
+    <a href="/settings">Settings</a>
+    <form method="post" action="/auth/logout" style="margin: 0;">
+      <button type="submit" style="background: none; border: none; color: #dc2626;
+              cursor: pointer; font-size: 0.875rem; padding: 0;">Sign out</button>
+    </form>
+  </div>
 </div>
 {% endblock %}

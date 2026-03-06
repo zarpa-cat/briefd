@@ -14,7 +14,12 @@
   </div>
   {% endfor %}
 {% else %}
-  <p style="color: #6b7280;">No briefings yet.</p>
-  <p>Run <code>briefd run --topics python,rust,llm</code> to generate your first one.</p>
+  <div style="padding: 2rem 0; color: #6b7280;">
+    <p style="margin-bottom: 0.75rem;">No briefings yet.</p>
+    <p>
+      <a href="/settings">Set your topics</a> — your first briefing will arrive
+      at your chosen delivery time.
+    </p>
+  </div>
 {% endif %}
 {% endblock %}
