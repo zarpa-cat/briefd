@@ -114,3 +114,17 @@ class TestRoutes:
     def test_verify_invalid_token_returns_400(self) -> None:
         resp = self.client.get("/auth/verify?token=badtoken")
         assert resp.status_code == 400
+
+    def test_settings_page_returns_200(self) -> None:
+        resp = self.client.get("/settings")
+        assert resp.status_code == 200
+        assert "topics" in resp.text.lower()
+
+    def test_save_settings_redirects(self) -> None:
+        resp = self.client.post(
+            "/settings",
+            data={"topics": "python, rust", "delivery_hour": "7"},
+            follow_redirects=False,
+        )
+        assert resp.status_code == 303
+        assert "/settings" in resp.headers["location"]

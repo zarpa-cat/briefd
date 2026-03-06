@@ -18,7 +18,7 @@ from briefd.auth import (
     send_magic_link,
     verify_token,
 )
-from briefd.storage import BriefingStore
+from briefd.storage import BriefingStore, UserConfigStore
 
 TEMPLATES_DIR = Path(__file__).parent / "templates"
 STATIC_DIR = Path(__file__).parent / "static"
@@ -36,6 +36,10 @@ AUTH_DB_PATH = Path(os.environ.get("BRIEFD_AUTH_DB", "briefd-auth.db"))
 
 def get_store() -> BriefingStore:
     return BriefingStore(DB_PATH)
+
+
+def get_user_config_store() -> UserConfigStore:
+    return UserConfigStore(DB_PATH)
 
 
 def get_auth_store() -> AuthStore:
@@ -174,6 +178,39 @@ async def logout() -> Response:
     response = RedirectResponse(url="/", status_code=303)
     response.delete_cookie("briefd_user")
     return response
+
+
+@app.get("/settings", response_class=HTMLResponse)
+async def settings_page(request: Request) -> HTMLResponse:
+    """User preferences — topics and delivery time."""
+    user_id = get_current_user(request)
+    cfg_store = get_user_config_store()
+    cfg = cfg_store.get(user_id)
+    return templates.TemplateResponse(
+        request,
+        "settings.html",
+        {"request": request, "user_id": user_id, "cfg": cfg},
+    )
+
+
+@app.post("/settings", response_class=HTMLResponse)
+async def save_settings(
+    request: Request,
+    topics: str = Form(...),
+    delivery_hour: int = Form(7),
+) -> Response:
+    """Save user topic and delivery preferences."""
+    from briefd.models import UserConfig
+
+    user_id = get_current_user(request)
+    topic_list = [t.strip().lower() for t in topics.split(",") if t.strip()]
+    cfg = UserConfig(
+        user_id=user_id,
+        topics=topic_list,
+        delivery_hour_utc=max(0, min(23, delivery_hour)),
+    )
+    get_user_config_store().save(cfg)
+    return RedirectResponse(url="/settings?saved=1", status_code=303)
 
 
 @app.get("/health")

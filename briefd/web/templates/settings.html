@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Settings — Briefd{% endblock %}
+{% block content %}
+<h1>Settings</h1>
+
+{% if request.query_params.get('saved') %}
+<p style="color: #16a34a; margin-bottom: 1rem;">✓ Saved.</p>
+{% endif %}
+
+<form method="post" action="/settings" style="max-width: 480px;">
+  <div style="margin-bottom: 1.25rem;">
+    <label for="topics" style="display: block; font-weight: 600; margin-bottom: 0.4rem;">
+      Topics
+    </label>
+    <input type="text" id="topics" name="topics"
+           value="{{ cfg.topics | join(', ') if cfg else '' }}"
+           placeholder="python, rust, llm, security"
+           style="width: 100%; padding: 0.5rem 0.75rem; border: 1.5px solid #d1d5db;
+                  border-radius: 6px; font-size: 1rem;">
+    <p style="font-size: 0.8rem; color: #6b7280; margin-top: 0.3rem;">
+      Comma-separated. Briefd filters stories matching any of these topics.
+    </p>
+  </div>
+
+  <div style="margin-bottom: 1.5rem;">
+    <label for="delivery_hour" style="display: block; font-weight: 600; margin-bottom: 0.4rem;">
+      Delivery time (UTC hour, 0–23)
+    </label>
+    <input type="number" id="delivery_hour" name="delivery_hour"
+           value="{{ cfg.delivery_hour_utc if cfg else 7 }}"
+           min="0" max="23"
+           style="width: 120px; padding: 0.5rem 0.75rem; border: 1.5px solid #d1d5db;
+                  border-radius: 6px; font-size: 1rem;">
+    <p style="font-size: 0.8rem; color: #6b7280; margin-top: 0.3rem;">
+      Your briefing is generated at this hour UTC each day.
+    </p>
+  </div>
+
+  <button type="submit"
+          style="padding: 0.55rem 1.4rem; background: #2563eb; color: #fff;
+                 border: none; border-radius: 6px; font-size: 1rem;
+                 font-weight: 500; cursor: pointer;">
+    Save settings
+  </button>
+</form>
+
+<p style="margin-top: 2rem; font-size: 0.875rem;">
+  <a href="/account">← Account</a>
+</p>
+{% endblock %}
