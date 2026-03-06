@@ -118,9 +118,17 @@ def schedule(db: str, hour: int | None, date: str | None, users: tuple[str, ...]
         )
         jobs.append(UserJob(cfg=cfg))
 
+    # If no --user args, load all registered users from the DB
     if not jobs:
-        console.print("[yellow]No users configured — nothing to do.[/yellow]")
-        return
+        from briefd.storage import UserConfigStore
+
+        cfg_store = UserConfigStore(Path(db))
+        all_cfgs = cfg_store.list_all()
+        if not all_cfgs:
+            console.print("[yellow]No users configured — nothing to do.[/yellow]")
+            return
+        jobs = [UserJob(cfg=c) for c in all_cfgs]
+        console.print(f"[dim]Loaded {len(jobs)} user(s) from {db}[/dim]")
 
     async def _run() -> None:
         result = await run_scheduler(
