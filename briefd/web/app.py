@@ -155,7 +155,11 @@ async def verify_magic_link(request: Request, token: str) -> Response:
 
     if status == TokenStatus.VALID:
         user_id = email_to_user_id(email)
-        response = RedirectResponse(url="/briefings", status_code=303)
+        # First-run: redirect to settings if user has no config yet
+        cfg_store = get_user_config_store()
+        existing_cfg = cfg_store.get(user_id)
+        dest = "/briefings" if existing_cfg else "/settings?welcome=1"
+        response = RedirectResponse(url=dest, status_code=303)
         response.set_cookie("briefd_user", user_id, httponly=True, max_age=60 * 60 * 24 * 30)
         return response
 

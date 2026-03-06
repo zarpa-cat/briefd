@@ -3,6 +3,13 @@
 {% block content %}
 <h1>Settings</h1>
 
+{% if request.query_params.get('welcome') %}
+<div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px;
+            padding: 1rem; margin-bottom: 1.5rem;">
+  <strong>Welcome to Briefd!</strong> Set your topics and delivery time to get started.
+</div>
+{% endif %}
+
 {% if request.query_params.get('saved') %}
 <p style="color: #16a34a; margin-bottom: 1rem;">✓ Saved.</p>
 {% endif %}
