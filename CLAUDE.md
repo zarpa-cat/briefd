@@ -52,7 +52,11 @@ API keys via environment variables only (`os.environ.get`). Never hardcoded.
 | `briefd/webhook.py` | `parse_webhook`, `handle_webhook` — RC lifecycle events |
 | `briefd/storage.py` | `BriefingStore` — SQLite persistence |
 | `briefd/cli.py` | Click CLI: `briefd run --topics python,rust` |
-| `briefd/web/app.py` | FastAPI routes: `/`, `/briefings`, `/briefings/{date}`, `/health` |
+| `briefd/auth.py` | Magic link auth: `AuthStore`, `generate_token`, `verify_token`, `send_magic_link` |
+| `briefd/scheduler.py` | `run_scheduler` — autonomous daily generation for all users |
+| `briefd/interventions.py` | `ChurnIntervention`, `TrialNudge` — draft-first agent actions |
+| `briefd/health.py` | `HealthReport`, `generate_health_report` — 7-day success rate |
+| `briefd/web/app.py` | FastAPI routes: landing, briefings, account, auth, webhook, health |
 
 ## RevenueCat integration
 
@@ -77,4 +81,19 @@ uv run pytest tests/test_billing.py -v   # specific file
 uv run pytest -k "test_filter"   # by name pattern
 ```
 
-Current test count: 66 (all passing).
+Current test count: 101 (all passing).
+
+## Deploy
+
+See `fly.toml` and `Dockerfile`. Deploy workflow in `.github/workflows/deploy.yml`
+requires `FLY_API_TOKEN` secret and `FLY_DEPLOY_ENABLED=true` repo variable.
+
+Scheduler (run hourly):
+```bash
+BRIEFD_USERS="alice@x.com:python,rust:7" bash scripts/run_scheduler.sh
+```
+
+Health check (agent-readable, non-zero if unhealthy):
+```bash
+uv run briefd health --db /data/briefd.db
+```
