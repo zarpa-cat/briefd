@@ -1,0 +1,32 @@
+# fly.toml — Briefd deployment config
+# Deploy: fly deploy (requires fly CLI + flyctl auth)
+
+app = "briefd"
+primary_region = "ams"  # Amsterdam — close to Copenhagen
+
+[build]
+
+[env]
+  PORT = "8080"
+  BRIEFD_DB = "/data/briefd.db"
+  BRIEFD_AUTH_DB = "/data/briefd-auth.db"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+
+  [http_service.concurrency]
+    type = "connections"
+    hard_limit = 25
+    soft_limit = 20
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "256mb"
+
+[mounts]
+  source = "briefd_data"
+  destination = "/data"

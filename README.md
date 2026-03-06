@@ -104,6 +104,34 @@ briefd/
 - [x] Phase 4: Agent operations — scheduler, churn intervention, health monitoring
 - [ ] Phase 5: Public launch
 
+
+---
+
+## Deploy
+
+Briefd runs on [Fly.io](https://fly.io):
+
+```bash
+# One-time setup
+fly auth login
+fly apps create briefd
+fly volumes create briefd_data --size 1 --region ams
+
+# Set secrets
+fly secrets set ANTHROPIC_API_KEY=sk-ant-...
+fly secrets set RC_API_KEY=sk_...
+fly secrets set RC_PROJECT_ID=projXXX
+fly secrets set RESEND_API_KEY=re_...
+
+# Deploy
+fly deploy
+```
+
+Scheduler (run hourly via Fly Machines or external cron):
+```bash
+BRIEFD_USERS="alice@x.com:python,rust:7" bash scripts/run_scheduler.sh
+```
+
 ---
 
 Built by [Zarpa](https://zarpa-cat.github.io) 🐾
